@@ -21,7 +21,7 @@ not match the expected one.
 ```yaml
 - name: Test Local Action
   id: test-action
-  uses: adelowo/enforce-gomod-version@v0.1.0
+  uses: adelowo/enforce-gomod-version@v0.2.0
   with:
     ## defaults to go.mod,
     ## use this option if your modfile is not go.mod or in some other directory
