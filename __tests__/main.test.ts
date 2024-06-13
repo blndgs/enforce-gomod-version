@@ -23,62 +23,16 @@ let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
 let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
 
 describe('action', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+  it('converts inputs to modules', async () => {
+    const modules = main.convertInputToModules([
+      "github.com/stretchr/testify=>v1.9.0",
+      "github.com/ethereum/go-ethereum => v1.11.5",
+      "google.golang.org/protobuf => v1.34.1",
+      "google.golang.org/anotherpackage      =>  v1.34.1",
+      "google.golang.org/anotherpackage       => v1.34.1        ",
+    ])
 
-    debugMock = jest.spyOn(core, 'debug').mockImplementation()
-    errorMock = jest.spyOn(core, 'error').mockImplementation()
-    getInputMock = jest.spyOn(core, 'getMultilineInput').mockImplementation()
-    setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
-  })
+    expect(modules).toHaveLength(4);
 
-  it('sets the time output', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'modules':
-          return `
-github.com/stretchr/testify v1.9.0
-github.com/ethereum/go-ethereum v1.11.5
-google.golang.org/protobuf v1.34.1 
-`
-        default:
-          return ''
-      }
-    })
-
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'status',
-      expect.stringMatching("Verified")
-    )
-    expect(errorMock).not.toHaveBeenCalled()
-  })
-
-  it('sets a failed status', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
-        default:
-          return ''
-      }
-    })
-
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
-    )
-    expect(errorMock).not.toHaveBeenCalled()
   })
 })

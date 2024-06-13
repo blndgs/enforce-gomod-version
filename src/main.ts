@@ -24,48 +24,57 @@ export async function run(): Promise<void> {
 
     const currentModulesAndVersion = getAllModulesAndVersions(modFile);
 
-    expectedModulesAndVersion.every(module => {
-      currentModulesAndVersion.some(currentModule => {
-        if (currentModule.module !== module.module) {
-          return true
-        }
-
-        if (currentModule.version !== module.version) {
-          throw new Error(`Module version does not match.. Expected ${module.module} to have
-version ${module.version} instead go.mod has it at version ${currentModule.version}`)
-        }
-      })
-    })
-
+    verifyModule(currentModulesAndVersion, expectedModulesAndVersion)
     core.setOutput('status', "Verified")
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
 }
 
+export function verifyModule(currentModulesAndVersion: GoModule[], expectedModulesAndVersion: GoModule[]) {
+  expectedModulesAndVersion.every(module => {
+    currentModulesAndVersion.some(currentModule => {
+      if (currentModule.module !== module.module) {
+        return true
+      }
+
+      if (currentModule.version !== module.version) {
+        throw new Error(`Module version does not match.. Expected ${module.module} to have
+version ${module.version} instead go.mod has it at version ${currentModule.version}`)
+      }
+    })
+  })
+}
+
 // Multi line input like 
 // github.com/adelowo/gulter => 0.1.0
 // github.com/adelowo/oops => 1.22.3
-function convertInputToModules(lines: string[]): GoModule[] {
+export function convertInputToModules(lines: string[]): GoModule[] {
 
   const m: GoModule[] = [];
+  const uniqueModules = new Set<string>();
 
   for (const line of lines) {
 
-    const splittedLines = line.split(" ")
+    const splittedLines = line.split("=>")
 
     if (splittedLines.length !== 2) {
       continue
     }
 
-    m.push({ module: splittedLines[0], version: splittedLines[1].trim() })
+    const key = splittedLines[0].trim();
+
+    if (!uniqueModules.has(key)) {
+      uniqueModules.add(key);
+      m.push({ module: splittedLines[0].trim(), version: splittedLines[1].trim() })
+    }
   }
 
   return m
 }
 
 // poor man's go.mod parser
-function getAllModulesAndVersions(modFile: string): GoModule[] {
+export function getAllModulesAndVersions(modFile: string): GoModule[] {
   const content = fs.readFileSync(modFile, 'utf-8');
   const modules: GoModule[] = [];
 
