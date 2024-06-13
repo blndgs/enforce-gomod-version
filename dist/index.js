@@ -24981,8 +24981,7 @@ function verifyModule(currentModulesAndVersion, expectedModulesAndVersion) {
                 return;
             }
             if (expected.version !== module.version) {
-                throw new Error(`Module version does not match.. Expected ${expected.module} to have
-version ${expected.version} instead go.mod has it at version ${module.version}`);
+                throw new Error(`Module version does not match.. Expected ${expected.module} to have version ${expected.version} instead go.mod has it at version ${module.version}`);
             }
         });
     });
