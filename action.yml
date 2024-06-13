@@ -1,23 +1,22 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "enforce-gomod-version"
+description: "Enforce module version in your go.mod. Stay a step ahead of go mod tidy"
+author: "adelowo"
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: "heart"
+  color: "red"
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  modules:
+    description: "The modules alongside the versions you want to enforce"
     required: true
-    default: '1000'
+    default: ""
 
 # Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  status:
+    description: "Status of the run"
 
 runs:
   using: node20
