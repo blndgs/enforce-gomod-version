@@ -47,7 +47,7 @@ describe('action', () => {
       'github.com/stretchr/testify=>v1.9.1'
     ])
 
-    const t = () => {
+    const t = (): void => {
       main.verifyModule(modules, modulesWanted)
     }
 
@@ -62,7 +62,7 @@ describe('action', () => {
       'github.com/ethereum/go-ethereum => v1.11.5'
     ])
 
-    const t = () => {
+    const t = (): void => {
       main.verifyModule(modules, modulesWanted)
     }
 
