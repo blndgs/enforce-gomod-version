@@ -37,7 +37,7 @@ describe('action', () => {
       'github.com/ethereum/go-ethereum => v1.11.5'
     ])
 
-    main.verifyModule(modules, modulesWanted)
+    expect(main.verifyModule(modules, modulesWanted)).toBe(true)
   })
 
   it('does not matches packages', async () => {

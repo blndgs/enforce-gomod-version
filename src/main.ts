@@ -35,7 +35,7 @@ export async function run(): Promise<void> {
 export function verifyModule(
   currentModulesAndVersion: GoModule[],
   expectedModulesAndVersion: GoModule[]
-) {
+): boolean {
   currentModulesAndVersion.map(module => {
     expectedModulesAndVersion.map(expected => {
       if (expected.module !== module.module) {
@@ -48,6 +48,8 @@ version ${expected.version} instead go.mod has it at version ${module.version}`)
       }
     })
   })
+
+  return true
 }
 
 // Multi line input like
