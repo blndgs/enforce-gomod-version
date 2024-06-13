@@ -32,15 +32,15 @@ export async function run(): Promise<void> {
 }
 
 export function verifyModule(currentModulesAndVersion: GoModule[], expectedModulesAndVersion: GoModule[]) {
-  expectedModulesAndVersion.every(module => {
-    currentModulesAndVersion.some(currentModule => {
-      if (currentModule.module !== module.module) {
-        return true
+  currentModulesAndVersion.map(module => {
+    expectedModulesAndVersion.map(expected => {
+      if (expected.module !== module.module) {
+        return
       }
 
-      if (currentModule.version !== module.version) {
-        throw new Error(`Module version does not match.. Expected ${module.module} to have
-version ${module.version} instead go.mod has it at version ${currentModule.version}`)
+      if (expected.version !== module.version) {
+        throw new Error(`Module version does not match.. Expected ${expected.module} to have
+version ${expected.version} instead go.mod has it at version ${module.version}`)
       }
     })
   })
