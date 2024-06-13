@@ -1,22 +1,23 @@
-name: "enforce-gomod-version"
-description: "Enforce module version in your go.mod. Stay a step ahead of go mod tidy"
-author: "adelowo"
+name: 'enforce-gomod-version'
+description:
+  'Enforce module version in your go.mod. Stay a step ahead of go mod tidy'
+author: 'adelowo'
 
 branding:
-  icon: "heart"
-  color: "red"
+  icon: 'heart'
+  color: 'red'
 
 # Define your inputs here.
 inputs:
   modules:
-    description: "The modules alongside the versions you want to enforce"
+    description: 'The modules alongside the versions you want to enforce'
     required: true
-    default: ""
+    default: ''
 
 # Define your outputs here.
 outputs:
   status:
-    description: "Status of the run"
+    description: 'Status of the run'
 
 runs:
   using: node20
