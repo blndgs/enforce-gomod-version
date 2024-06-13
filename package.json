@@ -1,6 +1,6 @@
 {
-  "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
+  "name": "enforce-gomod-version",
+  "description": "Enforce the version of a dependency that can be used in go.mod",
   "version": "0.0.0",
   "author": "",
   "private": true,

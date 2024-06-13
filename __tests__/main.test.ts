@@ -1,89 +1,71 @@
-/**
- * Unit tests for the action's main functionality, src/main.ts
- *
- * These should be run as if the action was called from a workflow.
- * Specifically, the inputs listed in `action.yml` should be set as environment
- * variables following the pattern `INPUT_<INPUT_NAME>`.
- */
-
-import * as core from '@actions/core'
 import * as main from '../src/main'
 
-// Mock the action's main function
-const runMock = jest.spyOn(main, 'run')
-
-// Other utilities
-const timeRegex = /^\d{2}:\d{2}:\d{2}/
-
-// Mock the GitHub Actions core library
-let debugMock: jest.SpiedFunction<typeof core.debug>
-let errorMock: jest.SpiedFunction<typeof core.error>
-let getInputMock: jest.SpiedFunction<typeof core.getInput>
-let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
-let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
-
 describe('action', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+  it('converts inputs to modules', async () => {
+    const modules = main.convertInputToModules([
+      'github.com/stretchr/testify=>v1.9.0',
+      'github.com/ethereum/go-ethereum => v1.11.5',
+      'google.golang.org/protobuf => v1.34.1',
+      'google.golang.org/anotherpackage      =>  v1.34.1',
+      'google.golang.org/anotherpackage       => v1.34.1        '
+    ])
 
-    debugMock = jest.spyOn(core, 'debug').mockImplementation()
-    errorMock = jest.spyOn(core, 'error').mockImplementation()
-    getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
-    setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+    // 4 since we added the same module twice
+    expect(modules).toHaveLength(4)
   })
 
-  it('sets the time output', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return '500'
-        default:
-          return ''
-      }
-    })
+  it('parses a simple go.mod file', async () => {
+    const modules = main.getAllModulesAndVersions('__tests__/fixtures/go.mod')
 
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
-    )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
-    )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
-    expect(errorMock).not.toHaveBeenCalled()
+    // 4 modules in the fixtures/go.mod file
+    expect(modules).toHaveLength(4)
   })
 
-  it('sets a failed status', async () => {
-    // Set the action's inputs as return values from core.getInput()
-    getInputMock.mockImplementation(name => {
-      switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
-        default:
-          return ''
-      }
-    })
-
-    await main.run()
-    expect(runMock).toHaveReturned()
-
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
+  it('parses a complex go.mod file with multiple require blocks', async () => {
+    const modules = main.getAllModulesAndVersions(
+      '__tests__/fixtures/complex.mod'
     )
-    expect(errorMock).not.toHaveBeenCalled()
+
+    expect(modules).toHaveLength(8)
+  })
+
+  it('matches packages', async () => {
+    const modules = main.getAllModulesAndVersions('__tests__/fixtures/go.mod')
+
+    const modulesWanted = main.convertInputToModules([
+      'github.com/stretchr/testify=>v1.9.0',
+      'github.com/ethereum/go-ethereum => v1.11.5'
+    ])
+
+    expect(main.verifyModule(modules, modulesWanted)).toBe(true)
+  })
+
+  it('does not matches packages', async () => {
+    const modules = main.getAllModulesAndVersions('__tests__/fixtures/go.mod')
+
+    const modulesWanted = main.convertInputToModules([
+      'github.com/stretchr/testify=>v1.9.1'
+    ])
+
+    const t = (): void => {
+      main.verifyModule(modules, modulesWanted)
+    }
+
+    expect(t).toThrow(Error)
+  })
+
+  it('does not matches packages for multiple packages', async () => {
+    const modules = main.getAllModulesAndVersions('__tests__/fixtures/go.mod')
+
+    const modulesWanted = main.convertInputToModules([
+      'github.com/stretchr/testify=>v1.9.2',
+      'github.com/ethereum/go-ethereum => v1.11.5'
+    ])
+
+    const t = (): void => {
+      main.verifyModule(modules, modulesWanted)
+    }
+
+    expect(t).toThrow(Error)
   })
 })

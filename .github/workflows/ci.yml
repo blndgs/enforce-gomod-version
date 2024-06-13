@@ -57,7 +57,10 @@ jobs:
         id: test-action
         uses: ./
         with:
-          milliseconds: 2000
+          modfile: '__tests__/fixtures/go.mod'
+          modules: |
+            github.com/stretchr/testify=>v1.9.0
+            github.com/ethereum/go-ethereum => v1.11.5
 
       - name: Print Output
         id: output
